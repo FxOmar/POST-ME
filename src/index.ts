@@ -1,25 +1,31 @@
-import { ApolloServer } from "apollo-server-express";
+import { ApolloServer, ExpressContext } from "apollo-server-express";
 import { ApolloServerPluginDrainHttpServer } from "apollo-server-core";
-import express from "express";
+import express, { Application } from "express";
 import http from "http";
 
 import { loadSchema } from "@graphql-tools/load";
 import { GraphQLFileLoader } from "@graphql-tools/graphql-file-loader";
+import { context } from "./context";
 
 import resolvers from "./api/resolvers/resolvers";
+import { GraphQLSchema } from "graphql/type";
 
 (async function () {
-  const typeDefs = await loadSchema("./src/api/schema.graphql", {
+  /**
+   * Load GraphQl schema
+   */
+  const typeDefs: GraphQLSchema = await loadSchema("./src/api/schema.graphql", {
     loaders: [new GraphQLFileLoader()],
   });
 
-  const app = express();
+  const app: Application = express();
 
   const httpServer = http.createServer(app);
 
-  const server = new ApolloServer({
+  const server: ApolloServer<ExpressContext> = new ApolloServer({
     typeDefs,
     resolvers,
+    context: context,
     plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
   });
 

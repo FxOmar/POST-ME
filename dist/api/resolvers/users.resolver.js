@@ -1,7 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const MOCK_USERS_1 = require("../../../MOCK_USERS");
-exports.default = () => {
-    return MOCK_USERS_1.usersList;
+exports.default = (_parent, _args, context) => {
+    return context.prisma.user.findMany({});
 };
 //# sourceMappingURL=users.resolver.js.map

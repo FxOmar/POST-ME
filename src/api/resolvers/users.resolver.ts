@@ -1,5 +1,5 @@
-import { usersList } from "../../../MOCK_USERS";
+import { Context } from "../../context";
 
-export default () => {
-  return usersList;
+export default (_parent, _args, context: Context) => {
+  return context.prisma.user.findMany({});
 };

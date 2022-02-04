@@ -1,15 +1,27 @@
-enum Gender {
-  Male
-  Female
-}
+# type Post {
+#   id:       ID!
+#   createdAt DateTime @default(now())
+#   updatedAt DateTime @updatedAt
+#   title     String   @db.VarChar(255)
+#   content   String?
+#   published Boolean  @default(false)
+#   author    User     @relation(fields: [authorId], references: [id])
+#   authorId  Int
+# }
+
+# type Profile {
+#   id     Int     @id @default(autoincrement())
+#   bio    String?
+#   user   User    @relation(fields: [userId], references: [id])
+#   userId Int     @unique
+# }
 
 type User {
   id: ID!
-  first_name: String!
-  last_name: String!
   email: String!
-  gender: Gender
-  ip_address: String
+  name: String!
+  #   posts:   [Post]
+  #   profile: Profile
 }
 
 type Query {

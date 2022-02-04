@@ -18,9 +18,13 @@ const express_1 = __importDefault(require("express"));
 const http_1 = __importDefault(require("http"));
 const load_1 = require("@graphql-tools/load");
 const graphql_file_loader_1 = require("@graphql-tools/graphql-file-loader");
+const context_1 = require("./context");
 const resolvers_1 = __importDefault(require("./api/resolvers/resolvers"));
 (function () {
     return __awaiter(this, void 0, void 0, function* () {
+        /**
+         * Load GraphQl schema
+         */
         const typeDefs = yield (0, load_1.loadSchema)("./src/api/schema.graphql", {
             loaders: [new graphql_file_loader_1.GraphQLFileLoader()],
         });
@@ -29,6 +33,7 @@ const resolvers_1 = __importDefault(require("./api/resolvers/resolvers"));
         const server = new apollo_server_express_1.ApolloServer({
             typeDefs,
             resolvers: resolvers_1.default,
+            context: context_1.context,
             plugins: [(0, apollo_server_core_1.ApolloServerPluginDrainHttpServer)({ httpServer })],
         });
         yield server.start();
