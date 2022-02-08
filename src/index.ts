@@ -1,23 +1,31 @@
+import "dotenv/config";
+
 import { ApolloServer, ExpressContext } from "apollo-server-express";
 import { ApolloServerPluginDrainHttpServer } from "apollo-server-core";
+
 import express, { Application } from "express";
 import http from "http";
 
-import { loadSchema } from "@graphql-tools/load";
-import { GraphQLFileLoader } from "@graphql-tools/graphql-file-loader";
-import { context } from "./context";
-
-import resolvers from "./api/resolvers/resolvers";
+import { PrismaClient } from "@prisma/client";
+import { loadSchemaSync } from "@graphql-tools/load";
 import { GraphQLSchema } from "graphql/type";
+import { GraphQLFileLoader } from "@graphql-tools/graphql-file-loader";
+
+import resolvers from "./api/resolvers";
+
+/**
+ * Load GraphQl schema
+ */
+const typeDefs: GraphQLSchema = loadSchemaSync(
+  "./src/api/schema/schema.graphql",
+  {
+    loaders: [new GraphQLFileLoader()],
+  }
+);
+
+const prisma = new PrismaClient();
 
 (async function () {
-  /**
-   * Load GraphQl schema
-   */
-  const typeDefs: GraphQLSchema = await loadSchema("./src/api/schema.graphql", {
-    loaders: [new GraphQLFileLoader()],
-  });
-
   const app: Application = express();
 
   const httpServer = http.createServer(app);
@@ -25,11 +33,13 @@ import { GraphQLSchema } from "graphql/type";
   const server: ApolloServer<ExpressContext> = new ApolloServer({
     typeDefs,
     resolvers,
-    context: context,
+    context: ({ req, res }) => ({ req, res, prisma }),
     plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
   });
 
   await server.start();
+
+  // app.use(validateTokensMiddleware); // middleware to be built
 
   server.applyMiddleware({ app });
 

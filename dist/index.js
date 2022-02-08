@@ -12,31 +12,34 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+require("dotenv/config");
 const apollo_server_express_1 = require("apollo-server-express");
 const apollo_server_core_1 = require("apollo-server-core");
 const express_1 = __importDefault(require("express"));
 const http_1 = __importDefault(require("http"));
+const client_1 = require("@prisma/client");
 const load_1 = require("@graphql-tools/load");
 const graphql_file_loader_1 = require("@graphql-tools/graphql-file-loader");
-const context_1 = require("./context");
-const resolvers_1 = __importDefault(require("./api/resolvers/resolvers"));
+const resolvers_1 = __importDefault(require("./api/resolvers"));
+/**
+ * Load GraphQl schema
+ */
+const typeDefs = (0, load_1.loadSchemaSync)("./src/api/schema/schema.graphql", {
+    loaders: [new graphql_file_loader_1.GraphQLFileLoader()],
+});
+const prisma = new client_1.PrismaClient();
 (function () {
     return __awaiter(this, void 0, void 0, function* () {
-        /**
-         * Load GraphQl schema
-         */
-        const typeDefs = yield (0, load_1.loadSchema)("./src/api/schema.graphql", {
-            loaders: [new graphql_file_loader_1.GraphQLFileLoader()],
-        });
         const app = (0, express_1.default)();
         const httpServer = http_1.default.createServer(app);
         const server = new apollo_server_express_1.ApolloServer({
             typeDefs,
             resolvers: resolvers_1.default,
-            context: context_1.context,
+            context: ({ req, res }) => ({ req, res, prisma }),
             plugins: [(0, apollo_server_core_1.ApolloServerPluginDrainHttpServer)({ httpServer })],
         });
         yield server.start();
+        // app.use(validateTokensMiddleware); // middleware to be built
         server.applyMiddleware({ app });
         yield new Promise((resolve) => httpServer.listen({ port: 4000 }, resolve));
         console.log(`🚀 Server ready at http://localhost:4000${server.graphqlPath}`);
