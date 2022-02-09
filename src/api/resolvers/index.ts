@@ -1,26 +1,47 @@
-import { hash } from "bcrypt";
-import { sign } from "jsonwebtoken";
+import { hash, compare } from "bcrypt";
 
-function generateTokens(user) {
-  const tokenSecret = process.env.TOKEN_SECRET;
+import { generateTokens } from "../../utils/JWT";
 
-  const token = sign({ username: user.username }, tokenSecret);
-
-  return {
-    accessToken: token,
-    refreshToken: token,
-  };
-}
+/**
+ * @param prisma
+ * @param email
+ *
+ * @returns User Object by email.
+ */
+const getUser = (prisma, email) =>
+  prisma.user.findFirst({
+    where: {
+      email: email,
+    },
+  });
 
 const resolvers = {
   Mutation: {
-    // login: async (_, { email, password }) => {
-    //   return;
-    // },
+    /**
+     * User login resolver.
+     */
+    login: async (_, { email, password }, { prisma }) => {
+      const user = await getUser(prisma, email);
+
+      if (!user) throw new Error("User not found");
+
+      const isPasswordValid = await compare(password, user.password);
+
+      if (!isPasswordValid) throw new Error("Invalid password");
+
+      const tokens = await generateTokens(user);
+
+      return {
+        ...tokens,
+        me: user,
+      };
+    },
+
+    /**
+     * Sign up new user.
+     */
     register: async (_, { email, username, password }, { prisma }) => {
-      const isUserRegistered = await prisma.user.findMany({
-        where: { email: email },
-      });
+      const isUserRegistered = await getUser(prisma, email);
 
       if (isUserRegistered.length > 0) {
         throw new Error("User already registered!");
@@ -44,9 +65,10 @@ const resolvers = {
       };
     },
   },
+
   Query: {
-    users(_, { prisma }) {
-      return prisma.users.findMany({});
+    async users(_, args, { prisma }) {
+      return await prisma.user.findMany({});
     },
   },
 };

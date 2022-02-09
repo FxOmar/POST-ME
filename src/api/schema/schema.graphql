@@ -1,29 +1,24 @@
+scalar Date
+
 type User {
   id: ID!
   email: String!
   username: String!
-  password: String!
-  created_at: String!
-  updated_at: String!
+  createdAt: Date!
+  updatedAt: Date
 }
 
 type Query {
   users: [User]!
 }
 
-type Me {
-  id: ID!
-  email: String!
-  username: String!
-}
-
 type AuthResponse {
-  accessToken: String
-  refreshToken: String
-  me: Me!
+  accessToken: String!
+  refreshToken: String!
+  me: User!
 }
 
 type Mutation {
   register(email: String!, username: String!, password: String!): AuthResponse!
-  login(username: String!, password: String!): AuthResponse!
+  login(email: String!, password: String!): AuthResponse!
 }
