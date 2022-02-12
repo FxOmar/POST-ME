@@ -1,3 +1,5 @@
+# directive @auth(requires: Role = ADMIN) on OBJECT | FIELD_DEFINITION
+
 scalar Date
 
 type User {
@@ -13,12 +15,16 @@ type Query {
 }
 
 type AuthResponse {
-  accessToken: String!
-  refreshToken: String!
+  token: String!
   me: User!
 }
 
 type Mutation {
-  register(email: String!, username: String!, password: String!): AuthResponse!
+  register(
+    email: String!
+    username: String!
+    password: String!
+    fullName: String!
+  ): AuthResponse!
   login(email: String!, password: String!): AuthResponse!
 }

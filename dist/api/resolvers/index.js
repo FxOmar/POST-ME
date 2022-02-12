@@ -17,7 +17,7 @@ const JWT_1 = require("../../utils/JWT");
  *
  * @returns User Object by email.
  */
-const getUser = (prisma, email) => prisma.user.findFirst({
+const getUser = (prisma, email) => prisma.user.findUnique({
     where: {
         email: email,
     },
@@ -34,15 +34,18 @@ const resolvers = {
             const isPasswordValid = yield (0, bcrypt_1.compare)(password, user.password);
             if (!isPasswordValid)
                 throw new Error("Invalid password");
-            const tokens = yield (0, JWT_1.generateTokens)(user);
-            return Object.assign(Object.assign({}, tokens), { me: user });
+            const token = yield (0, JWT_1.generateToken)(user);
+            return {
+                token,
+                me: user,
+            };
         }),
         /**
          * Sign up new user.
          */
-        register: (_, { email, username, password }, { prisma }) => __awaiter(void 0, void 0, void 0, function* () {
+        register: (_, { email, username, password, fullName }, { prisma }) => __awaiter(void 0, void 0, void 0, function* () {
             const isUserRegistered = yield getUser(prisma, email);
-            if (isUserRegistered.length > 0) {
+            if (isUserRegistered) {
                 throw new Error("User already registered!");
             }
             const hashedPassword = yield (0, bcrypt_1.hash)(password, 10);
@@ -51,10 +54,18 @@ const resolvers = {
                     email,
                     username,
                     password: hashedPassword,
+                    profile: {
+                        create: {
+                            fullName: fullName,
+                        },
+                    },
                 },
             });
-            const tokens = yield (0, JWT_1.generateTokens)(user);
-            return Object.assign(Object.assign({}, tokens), { me: user });
+            const token = yield (0, JWT_1.generateToken)(user);
+            return {
+                token,
+                me: user,
+            };
         }),
     },
     Query: {

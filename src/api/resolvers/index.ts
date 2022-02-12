@@ -1,6 +1,6 @@
 import { hash, compare } from "bcrypt";
 
-import { generateTokens } from "../../utils/JWT";
+import { generateToken } from "../../utils/JWT";
 
 /**
  * @param prisma
@@ -9,7 +9,7 @@ import { generateTokens } from "../../utils/JWT";
  * @returns User Object by email.
  */
 const getUser = (prisma, email) =>
-  prisma.user.findFirst({
+  prisma.user.findUnique({
     where: {
       email: email,
     },
@@ -29,10 +29,10 @@ const resolvers = {
 
       if (!isPasswordValid) throw new Error("Invalid password");
 
-      const tokens = await generateTokens(user);
+      const token = await generateToken(user);
 
       return {
-        ...tokens,
+        token,
         me: user,
       };
     },
@@ -40,10 +40,14 @@ const resolvers = {
     /**
      * Sign up new user.
      */
-    register: async (_, { email, username, password }, { prisma }) => {
+    register: async (
+      _,
+      { email, username, password, fullName },
+      { prisma }
+    ) => {
       const isUserRegistered = await getUser(prisma, email);
 
-      if (isUserRegistered.length > 0) {
+      if (isUserRegistered) {
         throw new Error("User already registered!");
       }
 
@@ -54,13 +58,18 @@ const resolvers = {
           email,
           username,
           password: hashedPassword,
+          profile: {
+            create: {
+              fullName: fullName,
+            },
+          },
         },
       });
 
-      const tokens = await generateTokens(user);
+      const token = await generateToken(user);
 
       return {
-        ...tokens,
+        token,
         me: user,
       };
     },

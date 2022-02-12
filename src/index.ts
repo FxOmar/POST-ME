@@ -4,7 +4,7 @@ import { ApolloServer, ExpressContext } from "apollo-server-express";
 import { ApolloServerPluginDrainHttpServer } from "apollo-server-core";
 
 import express, { Application } from "express";
-import http from "http";
+import { createServer } from "http";
 
 import { PrismaClient } from "@prisma/client";
 import { loadSchemaSync } from "@graphql-tools/load";
@@ -28,7 +28,7 @@ const prisma = new PrismaClient();
 (async function () {
   const app: Application = express();
 
-  const httpServer = http.createServer(app);
+  const httpServer = createServer(app);
 
   const server: ApolloServer<ExpressContext> = new ApolloServer({
     typeDefs,

@@ -16,7 +16,7 @@ require("dotenv/config");
 const apollo_server_express_1 = require("apollo-server-express");
 const apollo_server_core_1 = require("apollo-server-core");
 const express_1 = __importDefault(require("express"));
-const http_1 = __importDefault(require("http"));
+const http_1 = require("http");
 const client_1 = require("@prisma/client");
 const load_1 = require("@graphql-tools/load");
 const graphql_file_loader_1 = require("@graphql-tools/graphql-file-loader");
@@ -31,7 +31,7 @@ const prisma = new client_1.PrismaClient();
 (function () {
     return __awaiter(this, void 0, void 0, function* () {
         const app = (0, express_1.default)();
-        const httpServer = http_1.default.createServer(app);
+        const httpServer = (0, http_1.createServer)(app);
         const server = new apollo_server_express_1.ApolloServer({
             typeDefs,
             resolvers: resolvers_1.default,

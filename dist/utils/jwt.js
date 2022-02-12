@@ -1,36 +1,37 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.validateRefreshToken = exports.validateAccessToken = exports.generateTokens = void 0;
+exports.validatetoken = exports.generateToken = void 0;
 const jsonwebtoken_1 = require("jsonwebtoken");
-function generateTokens(user) {
-    const sevenDays = 60 * 60 * 24 * 7 * 1000;
-    const fifteenMins = 60 * 15 * 1000;
-    const accessUser = {
-        id: user.id,
-    };
-    const accessToken = (0, jsonwebtoken_1.sign)({ user: accessUser }, process.env.ACCESS_TOKEN_SECRET, {
-        expiresIn: fifteenMins,
-    });
+function generateToken(user) {
+    // const fifteenMins = 60 * 15 * 1000;
+    // const accessUser = {
+    //   id: user.id,
+    // };
+    // const accessToken = sign(
+    //   { user: accessUser },
+    //   process.env.ACCESS_TOKEN_SECRET,
+    //   {
+    //     expiresIn: fifteenMins,
+    //   }
+    // );
     const refreshUser = {
         id: user.id,
         username: user.username,
     };
-    const refreshToken = (0, jsonwebtoken_1.sign)({ user: refreshUser }, process.env.REFRESH_TOKEN_SECRET, {
-        expiresIn: sevenDays,
+    const token = (0, jsonwebtoken_1.sign)({ user: refreshUser }, process.env.REFRESH_TOKEN_SECRET, {
+        expiresIn: 60 * 60 * 24 * 7 * 1000,
     });
-    return { accessToken, refreshToken };
+    return token;
 }
-exports.generateTokens = generateTokens;
-function validateAccessToken(token) {
-    try {
-        return (0, jsonwebtoken_1.verify)(token, process.env.ACCESS_TOKEN_SECRET);
-    }
-    catch (_a) {
-        return null;
-    }
-}
-exports.validateAccessToken = validateAccessToken;
-function validateRefreshToken(token) {
+exports.generateToken = generateToken;
+// export function validateAccessToken(token) {
+//   try {
+//     return verify(token, process.env.ACCESS_TOKEN_SECRET);
+//   } catch {
+//     return null;
+//   }
+// }
+function validatetoken(token) {
     try {
         return (0, jsonwebtoken_1.verify)(token, process.env.REFRESH_TOKEN_SECRET);
     }
@@ -38,5 +39,5 @@ function validateRefreshToken(token) {
         return null;
     }
 }
-exports.validateRefreshToken = validateRefreshToken;
+exports.validatetoken = validatetoken;
 //# sourceMappingURL=JWT.js.map

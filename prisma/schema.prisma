@@ -15,6 +15,48 @@ model User {
   email     String   @unique
   username  String
   password  String
+  profile   Profile @relation(fields: [profileId], references: [id])
+  profileId Int
+  role      Role? @relation(fields: [roleId], references: [id])
+  roleId    Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Profile {
+  id        Int @id @default(autoincrement())
+  fullName  String
+  bio       String? @db.VarChar(120)
+  user      User?
+  posts     Post[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Role {
+  id        Int @id @default(autoincrement())
+  name      String @unique
+  user      User[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Post {
+  id        Int @id @default(autoincrement())
+  text      String @db.LongText
+  profile   Profile @relation(fields: [profileId], references: [id])
+  profileId Int
+  likes     BigInt @db.BigInt
+  comments  Comment[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Comment {
+  id        Int @id @default(autoincrement())
+  Comment   String @db.LongText
+  post      Post @relation(fields: [postId], references: [id])
+  postId    Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
