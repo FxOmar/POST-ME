@@ -76,7 +76,7 @@ const resolvers = {
   },
 
   Query: {
-    async users(_, args, { prisma }) {
+    async users(_, args, { prisma, user }) {
       return await prisma.user.findMany({});
     },
   },

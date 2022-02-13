@@ -4,9 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon ./dist/index.js",
-    "watch": "tsc -w",
-    "build": "tsc --project ./",
+    "dev": "nodemon --config nodemon.json src/index.ts",
+    "dev:debug": "nodemon --config nodemon.json --inspect-brk src/index.ts",
     "lint": "eslint . --ext .ts"
   },
   "keywords": [],
@@ -16,6 +15,7 @@
     "@graphql-tools/graphql-file-loader": "^7.3.3",
     "@graphql-tools/load": "^7.5.1",
     "@graphql-tools/schema": "^8.3.1",
+    "@graphql-tools/utils": "^8.6.1",
     "@prisma/client": "^3.9.1",
     "apollo-server-core": "^3.6.2",
     "apollo-server-express": "^3.6.2",

@@ -1,4 +1,4 @@
-# directive @auth(requires: Role = ADMIN) on OBJECT | FIELD_DEFINITION
+directive @isAuthenticated on FIELD_DEFINITION
 
 scalar Date
 
@@ -11,7 +11,7 @@ type User {
 }
 
 type Query {
-  users: [User]!
+  users: [User]! @isAuthenticated
 }
 
 type AuthResponse {

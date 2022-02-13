@@ -35,7 +35,7 @@ export function generateToken(user): { token: string } {
 //   }
 // }
 
-export function validatetoken(token) {
+export function validateToken(token) {
   try {
     return verify(token, process.env.REFRESH_TOKEN_SECRET);
   } catch {

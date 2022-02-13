@@ -1,7 +1,10 @@
 import "dotenv/config";
 
 import { ApolloServer, ExpressContext } from "apollo-server-express";
-import { ApolloServerPluginDrainHttpServer } from "apollo-server-core";
+import {
+  ApolloServerPluginDrainHttpServer,
+  AuthenticationError,
+} from "apollo-server-core";
 
 import express, { Application } from "express";
 import { createServer } from "http";
@@ -10,8 +13,14 @@ import { PrismaClient } from "@prisma/client";
 import { loadSchemaSync } from "@graphql-tools/load";
 import { GraphQLSchema } from "graphql/type";
 import { GraphQLFileLoader } from "@graphql-tools/graphql-file-loader";
+import { makeExecutableSchema } from "@graphql-tools/schema";
 
 import resolvers from "./api/resolvers";
+import { validateToken } from "./utils/JWT";
+
+import { isAuthenticatedDirectiveTransformer } from "./directives";
+
+const prisma = new PrismaClient();
 
 /**
  * Load GraphQl schema
@@ -23,7 +32,25 @@ const typeDefs: GraphQLSchema = loadSchemaSync(
   }
 );
 
-const prisma = new PrismaClient();
+let schema = makeExecutableSchema({ typeDefs, resolvers });
+
+schema = isAuthenticatedDirectiveTransformer(schema, "isAuthenticated");
+
+const getUser = async (token) => {
+  try {
+    const decodedToken = await validateToken(token);
+
+    const user = await prisma.user.findUnique({
+      where: {
+        id: decodedToken.user.id,
+      },
+    });
+
+    return user;
+  } catch (err) {
+    return null;
+  }
+};
 
 (async function () {
   const app: Application = express();
@@ -31,9 +58,16 @@ const prisma = new PrismaClient();
   const httpServer = createServer(app);
 
   const server: ApolloServer<ExpressContext> = new ApolloServer({
-    typeDefs,
-    resolvers,
-    context: ({ req, res }) => ({ req, res, prisma }),
+    schema,
+    context: async ({ req, res }) => {
+      // Get the user token from the headers.
+      const token = req.headers.authorization || "";
+
+      // Try to retrieve a user with the token
+      const user = await getUser(token);
+
+      return { req, res, prisma, user };
+    },
     plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
   });
 
