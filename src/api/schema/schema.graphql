@@ -6,8 +6,20 @@ type User {
   id: ID!
   email: String!
   username: String!
+  profile: Profile!
   createdAt: Date!
   updatedAt: Date
+}
+type Post {
+  id: ID!
+  text: String!
+  likes: Int
+}
+
+type Profile {
+  fullName: String!
+  bio: String
+  posts: [Post]
 }
 
 type Query {
@@ -19,7 +31,21 @@ type AuthResponse {
   me: User!
 }
 
+input CreateNewPostInput {
+  text: String!
+}
+
 type Mutation {
+  # authenticated part of schema
+
+  # Editing user Profile
+  editProfile(id: ID!, fullName: String, bio: String): User! @isAuthenticated
+
+  # Creating new post and update
+  createNewPost(input: CreateNewPostInput!): Post! @isAuthenticated
+  updatePost(id: ID!, input: CreateNewPostInput!): Post! @isAuthenticated
+
+  # unauthenticated part of schema
   register(
     email: String!
     username: String!

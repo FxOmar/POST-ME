@@ -1,10 +1,7 @@
 import "dotenv/config";
 
 import { ApolloServer, ExpressContext } from "apollo-server-express";
-import {
-  ApolloServerPluginDrainHttpServer,
-  AuthenticationError,
-} from "apollo-server-core";
+import { ApolloServerPluginDrainHttpServer } from "apollo-server-core";
 
 import express, { Application } from "express";
 import { createServer } from "http";
@@ -72,8 +69,6 @@ const getUser = async (token) => {
   });
 
   await server.start();
-
-  // app.use(validateTokensMiddleware); // middleware to be built
 
   server.applyMiddleware({ app });
 
