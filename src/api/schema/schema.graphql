@@ -13,7 +13,7 @@ type User {
 type Post {
   id: ID!
   text: String!
-  likes: Int
+  likes: String
 }
 
 type Profile {
@@ -35,6 +35,12 @@ input CreateNewPostInput {
   text: String!
 }
 
+input UpdatePostInput {
+  id: ID!
+  text: String
+  likes: Int
+}
+
 type Mutation {
   # authenticated part of schema
 
@@ -43,7 +49,7 @@ type Mutation {
 
   # Creating new post and update
   createNewPost(input: CreateNewPostInput!): Post! @isAuthenticated
-  updatePost(id: ID!, input: CreateNewPostInput!): Post! @isAuthenticated
+  updatePost(input: UpdatePostInput!): Post! @isAuthenticated
 
   # unauthenticated part of schema
   register(

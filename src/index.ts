@@ -41,6 +41,9 @@ const getUser = async (token) => {
       where: {
         id: decodedToken.user.id,
       },
+      include: {
+        profile: true,
+      },
     });
 
     return user;

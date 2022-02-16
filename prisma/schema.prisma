@@ -46,7 +46,7 @@ model Post {
   text      String @db.LongText
   profile   Profile @relation(fields: [profileId], references: [id])
   profileId Int
-  likes     BigInt @db.BigInt
+  likes     Int?
   comments  Comment[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

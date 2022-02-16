@@ -13,7 +13,11 @@ const resolvers = {
     async users(_, args, { prisma }) {
       return await prisma.user.findMany({
         include: {
-          profile: true,
+          profile: {
+            include: {
+              posts: true,
+            },
+          },
         },
       });
     },
